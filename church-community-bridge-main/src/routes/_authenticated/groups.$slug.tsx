@@ -13,9 +13,9 @@ import { timeAgo } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/groups/$slug")({
   head: () => ({
     meta: [
-      { title: "Group — CAC" },
+      { title: "Group â€” CAC" },
       { name: "description", content: "Group discussions and fellowship." },
-      { property: "og:title", content: "Group — CAC" },
+      { property: "og:title", content: "Group â€” CAC" },
       { property: "og:description", content: "Group discussions and fellowship." },
     ],
   }),
@@ -85,7 +85,7 @@ function GroupPage() {
     onError: () => toast.error("Couldn't post"),
   });
 
-  if (!group) return <div className="p-10 text-center text-muted-foreground">Loading…</div>;
+  if (!group) return <div className="p-10 text-center text-muted-foreground">Loadingâ€¦</div>;
 
   return (
     <div>
@@ -103,14 +103,14 @@ function GroupPage() {
 
       <div className="space-y-3 px-5 pt-6">
         {joined && (composing ? (
-          <form className="space-y-3 rounded-2xl bg-card p-4 shadow-soft" onSubmit={(e) => { e.preventDefault(); if (title.trim() && body.trim()) post.mutate(); }}>
+          <form className="space-y-3 rounded-2xl bg-card p-4 shadow-soft border border-border" onSubmit={(e) => { e.preventDefault(); if (title.trim() && body.trim()) post.mutate(); }}>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} placeholder="Discussion title" className="rounded-xl" />
-            <Textarea value={body} onChange={(e) => setBody(e.target.value)} maxLength={4000} placeholder="Share an idea, question or encouragement…" className="min-h-28 rounded-xl" />
+            <Textarea value={body} onChange={(e) => setBody(e.target.value)} maxLength={4000} placeholder="Share an idea, question or encouragementâ€¦" className="min-h-28 rounded-xl" />
             <div className="flex gap-2 text-sm">
               <label className="flex items-center gap-1 cursor-pointer"><Paperclip className="h-4 w-4" /> Image <input type="file" accept="image/*" hidden onChange={(e) => setImageFile(e.target.files?.[0] ?? null)} /></label>
               <label className="flex items-center gap-1 cursor-pointer"><Mic className="h-4 w-4" /> Audio <input type="file" accept="audio/*" hidden onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)} /></label>
-              {imageFile && <span className="truncate">{imageFile.name}</span>}
-              {audioFile && <span className="truncate">{audioFile.name}</span>}
+              {imageFile && <span className="truncate block">{imageFile.name}</span>}
+              {audioFile && <span className="truncate block">{audioFile.name}</span>}
             </div>
             <div className="flex gap-2">
               <Button type="button" variant="ghost" onClick={() => setComposing(false)}>Cancel</Button>
@@ -123,8 +123,8 @@ function GroupPage() {
         {!joined && <p className="rounded-xl bg-secondary p-3 text-center text-sm text-muted-foreground">Join this group to start discussions.</p>}
 
         {posts.map((p) => (
-          <Link key={p.id} to="/posts/$id" params={{ id: p.id }} className="block rounded-2xl bg-card p-4">
-            <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{p.profiles?.display_name}</span> · {timeAgo(p.created_at)}</p>
+          <Link key={p.id} to="/posts/$id" params={{ id: p.id }} className="block rounded-2xl bg-card p-4 shadow-sm border border-border">
+            <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">{p.profiles?.display_name}</span> Â· {timeAgo(p.created_at)}</p>
             <h3 className="mt-1 text-lg font-bold">{p.title}</h3>
             <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.body}</p>
             <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground"><MessageCircle className="h-3.5 w-3.5" /> {p.comments.length} replies</p>

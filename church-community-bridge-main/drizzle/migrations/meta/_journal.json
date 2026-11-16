@@ -15,6 +15,13 @@
       "when": 1792149201889,
       "tag": "0001_group_media_announcements",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793974560076,
+      "tag": "0002_scope_member_data_access",
+      "breakpoints": true
     }
   ]
 }

@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/admin/events")({
 interface E { id: string; title: string; description: string | null; location: string | null; starts_at: string; ends_at: string | null; }
 
 function AdminEventsPage() {
-  const { user } = useMe();
+  const user = useMe();
   const qc = useQueryClient();
   const [form, setForm] = useState({ title: "", description: "", location: "", starts_at: "", ends_at: "" });
   const [editing, setEditing] = useState<string | null>(null);

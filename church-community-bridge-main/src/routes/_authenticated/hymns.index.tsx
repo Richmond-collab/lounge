@@ -16,13 +16,17 @@ export const Route = createFileRoute("/_authenticated/hymns/")({
 interface Hymn { id: string; hymn_number: number; title: string; lyrics: string; language: string; category: string | null; audio_url: string | null; is_published: boolean; }
 
 function HymnsPage() {
-  const { user } = useMe();
+  const user = useMe();
   const [q, setQ] = useState("");
   const [lang, setLang] = useState("All");
   const qc = useQueryClient();
   const { data = [], isLoading, error } = useQuery({
     queryKey: ["hymns"],
-    queryFn: async () => (await supabase.from("hymns").select("*").eq("is_published", true).order("hymn_number")).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("hymns").select("*").eq("is_published", true).order("hymn_number");
+      if (error) throw error;
+      return data;
+    },
   });
   const { data: favs = [] } = useQuery({
     queryKey: ["hymn-favourites", user?.id],
@@ -58,7 +62,7 @@ function HymnsPage() {
       </div>
       {isLoading && <p className="py-10 text-center text-muted-foreground">Loading hymns…</p>}
       {error && <p className="py-10 text-center text-destructive">Failed to load hymns.</p>}
-      {!isLoading && filtered.length === 0 && <p className="py-10 text-center text-muted-foreground">No hymns found. (Sample content may be added by an admin.)</p>}
+      {!isLoading && !error && filtered.length === 0 && <p className="px-8 py-10 text-center text-muted-foreground">The hymn library is empty. A church administrator can add the official CAC hymn list.</p>}
       <div className="space-y-3 px-5 pb-24">
         {filtered.map((h: Hymn) => (
           <Link key={h.id} to="/hymns/$id" params={{ id: h.id }} className="flex items-center gap-3 rounded-2xl bg-card p-4">

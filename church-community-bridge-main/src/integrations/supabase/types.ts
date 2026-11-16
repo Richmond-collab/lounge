@@ -17,25 +17,43 @@ export type Database = {
       announcements: {
         Row: {
           body: string
+          category: string
           created_at: string
           created_by: string
           id: string
+          image_url: string | null
+          is_pinned: boolean
+          is_published: boolean
+          published_at: string | null
+          scheduled_for: string | null
           title: string
           updated_at: string
         }
         Insert: {
           body: string
+          category?: string
           created_at?: string
           created_by: string
           id?: string
+          image_url?: string | null
+          is_pinned?: boolean
+          is_published?: boolean
+          published_at?: string | null
+          scheduled_for?: string | null
           title: string
           updated_at?: string
         }
         Update: {
           body?: string
+          category?: string
           created_at?: string
           created_by?: string
           id?: string
+          image_url?: string | null
+          is_pinned?: boolean
+          is_published?: boolean
+          published_at?: string | null
+          scheduled_for?: string | null
           title?: string
           updated_at?: string
         }
@@ -130,6 +148,7 @@ export type Database = {
           description: string | null
           ends_at: string | null
           id: string
+          is_published: boolean
           location: string | null
           starts_at: string
           title: string
@@ -139,6 +158,7 @@ export type Database = {
           description?: string | null
           ends_at?: string | null
           id?: string
+          is_published?: boolean
           location?: string | null
           starts_at: string
           title: string
@@ -148,6 +168,7 @@ export type Database = {
           description?: string | null
           ends_at?: string | null
           id?: string
+          is_published?: boolean
           location?: string | null
           starts_at?: string
           title?: string
@@ -192,6 +213,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_published: boolean
           name: string
           slug: string
         }
@@ -199,6 +221,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_published?: boolean
           name: string
           slug: string
         }
@@ -206,8 +229,84 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_published?: boolean
           name?: string
           slug?: string
+        }
+        Relationships: []
+      }
+      hymn_favourites: {
+        Row: {
+          created_at: string
+          hymn_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hymn_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hymn_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hymn_favourites_hymn_id_fkey"
+            columns: ["hymn_id"]
+            isOneToOne: false
+            referencedRelation: "hymns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hymn_favourites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hymns: {
+        Row: {
+          audio_url: string | null
+          category: string | null
+          created_at: string
+          hymn_number: number
+          id: string
+          is_published: boolean
+          language: string
+          lyrics: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url?: string | null
+          category?: string | null
+          created_at?: string
+          hymn_number: number
+          id?: string
+          is_published?: boolean
+          language?: string
+          lyrics: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string | null
+          category?: string | null
+          created_at?: string
+          hymn_number?: number
+          id?: string
+          is_published?: boolean
+          language?: string
+          lyrics?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -350,6 +449,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_published: boolean
           preached_on: string
           series: string | null
           speaker: string
@@ -360,6 +460,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_published?: boolean
           preached_on: string
           series?: string | null
           speaker: string
@@ -370,6 +471,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_published?: boolean
           preached_on?: string
           series?: string | null
           speaker?: string

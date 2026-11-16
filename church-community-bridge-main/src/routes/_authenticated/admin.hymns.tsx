@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/admin/hymns")({
 interface Hymn { id: string; hymn_number: number; title: string; lyrics: string; language: string; category: string | null; audio_url: string | null; is_published: boolean; }
 
 function AdminHymnsPage() {
-  const { user } = useMe();
+  const user = useMe();
   const qc = useQueryClient();
   const [form, setForm] = useState({ hymn_number: "", title: "", lyrics: "", language: "English", category: "", audio_url: "", is_published: true });
   const [editing, setEditing] = useState<string | null>(null);

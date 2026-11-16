@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { Gift, LogOut, PlayCircle, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/hooks/use-me";
@@ -10,9 +9,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({
     meta: [
-      { title: "Home — CAC" },
+      { title: "Home â€” CAC" },
       { name: "description", content: "Your CAC home: latest sermon, upcoming events and giving." },
-      { property: "og:title", content: "Home — CAC" },
+      { property: "og:title", content: "Home â€” CAC" },
       { property: "og:description", content: "Latest sermon and upcoming events." },
     ],
   }),
@@ -43,17 +42,6 @@ function HomePage() {
     navigate({ to: "/auth", replace: true });
   }
 
-  const quotes = [
-    '"Be still, and know that I am God." - Psalm 46:10',
-    '"The Lord is my shepherd; I shall not want." - Psalm 23:1',
-    '"I can do all things through Christ who strengthens me." - Philippians 4:13',
-  ];
-  const [qi, setQi] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setQi((i) => (i + 1) % quotes.length), 60000);
-    return () => clearInterval(t);
-  }, []);
-
   const hour = new Date().getHours();
   const greet = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
@@ -67,7 +55,7 @@ function HomePage() {
           </button>
         </div>
         <h1 className="text-3xl font-bold">{profile?.display_name ?? "Beloved"}</h1>
-        <p className="mt-3 font-display text-lg italic opacity-90">{quotes[qi]}</p>
+        <p className="mt-3 font-display text-lg italic opacity-90">"Be still, and know that I am God." â€” Psalm 46:10</p>
       </section>
 
       <div className="space-y-6 px-5 pt-6">
@@ -80,7 +68,7 @@ function HomePage() {
             <div className="p-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-accent-foreground/70">Latest sermon</p>
               <h2 className="mt-1 text-xl font-bold">{sermon.title}</h2>
-              <p className="text-sm text-muted-foreground">{sermon.speaker} · {formatDate(sermon.preached_on)}</p>
+              <p className="text-sm text-muted-foreground">{sermon.speaker} Â· {formatDate(sermon.preached_on)}</p>
             </div>
           </Link>
         )}

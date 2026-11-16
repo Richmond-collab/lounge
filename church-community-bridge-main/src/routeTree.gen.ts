@@ -20,6 +20,7 @@ import { Route as AuthenticatedPrayerRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin.announcements'
 import { Route as AuthenticatedAdminEventsRouteImport } from './routes/_authenticated/admin.events'
 import { Route as AuthenticatedAdminHymnsRouteImport } from './routes/_authenticated/admin.hymns'
+import { Route as AuthenticatedAdminLiveRouteImport } from './routes/_authenticated/admin.live'
 import { Route as AuthenticatedAnnouncementsIndexRouteImport } from './routes/_authenticated/announcements.index'
 import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenticated/groups.index'
 import { Route as AuthenticatedGroupsSlugRouteImport } from './routes/_authenticated/groups.$slug'
@@ -85,6 +86,11 @@ const AuthenticatedAdminHymnsRoute = AuthenticatedAdminHymnsRouteImport.update({
   path: '/admin/hymns',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminLiveRoute = AuthenticatedAdminLiveRouteImport.update({
+  id: '/admin/live',
+  path: '/admin/live',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAnnouncementsIndexRoute =
   AuthenticatedAnnouncementsIndexRouteImport.update({
     id: '/announcements/',
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/events': typeof AuthenticatedAdminEventsRoute
   '/admin/hymns': typeof AuthenticatedAdminHymnsRoute
+  '/admin/live': typeof AuthenticatedAdminLiveRoute
   '/groups/$slug': typeof AuthenticatedGroupsSlugRoute
   '/hymns/$id': typeof AuthenticatedHymnsIdRoute
   '/posts/$id': typeof AuthenticatedPostsIdRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/admin/events': typeof AuthenticatedAdminEventsRoute
   '/admin/hymns': typeof AuthenticatedAdminHymnsRoute
+  '/admin/live': typeof AuthenticatedAdminLiveRoute
   '/groups/$slug': typeof AuthenticatedGroupsSlugRoute
   '/hymns/$id': typeof AuthenticatedHymnsIdRoute
   '/posts/$id': typeof AuthenticatedPostsIdRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
   '/_authenticated/admin/events': typeof AuthenticatedAdminEventsRoute
   '/_authenticated/admin/hymns': typeof AuthenticatedAdminHymnsRoute
+  '/_authenticated/admin/live': typeof AuthenticatedAdminLiveRoute
   '/_authenticated/groups/$slug': typeof AuthenticatedGroupsSlugRoute
   '/_authenticated/hymns/$id': typeof AuthenticatedHymnsIdRoute
   '/_authenticated/posts/$id': typeof AuthenticatedPostsIdRoute
@@ -204,6 +213,7 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/events'
     | '/admin/hymns'
+    | '/admin/live'
     | '/groups/$slug'
     | '/hymns/$id'
     | '/posts/$id'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/admin/announcements'
     | '/admin/events'
     | '/admin/hymns'
+    | '/admin/live'
     | '/groups/$slug'
     | '/hymns/$id'
     | '/posts/$id'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/announcements'
     | '/_authenticated/admin/events'
     | '/_authenticated/admin/hymns'
+    | '/_authenticated/admin/live'
     | '/_authenticated/groups/$slug'
     | '/_authenticated/hymns/$id'
     | '/_authenticated/posts/$id'
@@ -340,6 +352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminHymnsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/live': {
+      id: '/_authenticated/admin/live'
+      path: '/admin/live'
+      fullPath: '/admin/live'
+      preLoaderRoute: typeof AuthenticatedAdminLiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/announcements/': {
       id: '/_authenticated/announcements/'
       path: '/announcements'
@@ -408,6 +427,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
   AuthenticatedAdminEventsRoute: typeof AuthenticatedAdminEventsRoute
   AuthenticatedAdminHymnsRoute: typeof AuthenticatedAdminHymnsRoute
+  AuthenticatedAdminLiveRoute: typeof AuthenticatedAdminLiveRoute
   AuthenticatedGroupsSlugRoute: typeof AuthenticatedGroupsSlugRoute
   AuthenticatedHymnsIdRoute: typeof AuthenticatedHymnsIdRoute
   AuthenticatedPostsIdRoute: typeof AuthenticatedPostsIdRoute
@@ -427,6 +447,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
   AuthenticatedAdminEventsRoute: AuthenticatedAdminEventsRoute,
   AuthenticatedAdminHymnsRoute: AuthenticatedAdminHymnsRoute,
+  AuthenticatedAdminLiveRoute: AuthenticatedAdminLiveRoute,
   AuthenticatedGroupsSlugRoute: AuthenticatedGroupsSlugRoute,
   AuthenticatedHymnsIdRoute: AuthenticatedHymnsIdRoute,
   AuthenticatedPostsIdRoute: AuthenticatedPostsIdRoute,

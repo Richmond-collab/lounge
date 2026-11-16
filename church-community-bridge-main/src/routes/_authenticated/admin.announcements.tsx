@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/admin/announcements")({
 interface A { id: string; title: string; body: string; category: string; is_published: boolean; is_pinned: boolean; image_url: string | null; }
 
 function AdminAnnouncementsPage() {
-  const { user } = useMe();
+  const user = useMe();
   const qc = useQueryClient();
   const [form, setForm] = useState({ title: "", body: "", category: "General", is_published: false, is_pinned: false, image_url: "" });
   const [editing, setEditing] = useState<string | null>(null);

@@ -80,7 +80,7 @@ function EventsPage() {
               </div>
               {e.description && <p className="mt-2 text-sm">{e.description}</p>}
               <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{e.event_rsvps.length} going</span>
+                <span className="text-xs text-muted-foreground">{going ? "Your RSVP is confirmed" : "RSVP to attend"}</span>
                 <Button size="sm" variant={going ? "secondary" : "default"} className="rounded-full" disabled={toggle.isPending} onClick={() => toggle.mutate({ id: e.id, going })}>
                   {going ? <><Check className="h-4 w-4" /> Going</> : "RSVP"}
                 </Button>

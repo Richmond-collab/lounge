@@ -35,12 +35,12 @@ function PostPage() {
   const { data: imageUrl } = useQuery({
     queryKey: ["post-image", id],
     enabled: !!post?.image_path,
-    queryFn: async () => (await supabase.storage.from("group-attachments").createSignedUrl(post!.image_path, 3600)).data?.signedUrl ?? null,
+    queryFn: async () => (await supabase.storage.from("group-attachments").createSignedUrl(post!.image_path!, 3600)).data?.signedUrl ?? null,
   });
   const { data: audioUrl } = useQuery({
     queryKey: ["post-audio", id],
     enabled: !!post?.audio_path,
-    queryFn: async () => (await supabase.storage.from("group-attachments").createSignedUrl(post!.audio_path, 3600)).data?.signedUrl ?? null,
+    queryFn: async () => (await supabase.storage.from("group-attachments").createSignedUrl(post!.audio_path!, 3600)).data?.signedUrl ?? null,
   });
 
   const send = useMutation({
@@ -89,3 +89,4 @@ function PostPage() {
     </div>
   );
 }
+

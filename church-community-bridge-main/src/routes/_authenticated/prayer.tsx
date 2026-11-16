@@ -96,7 +96,7 @@ function PrayerPage() {
                   onClick={() => pray.mutate({ id: p.id, prayed })}
                   className={cn("flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium", prayed ? "bg-accent text-accent-foreground" : "bg-secondary text-secondary-foreground")}
                 >
-                  <HandHeart className="h-4 w-4" /> {prayed ? "Praying" : "I'll pray"} · {p.prayer_supports.length}
+                  <HandHeart className="h-4 w-4" /> {prayed ? "Praying" : "I'll pray"}
                 </button>
                 {p.user_id === me.id && (
                   <button onClick={() => remove.mutate(p.id)} aria-label="Delete" className="p-2 text-muted-foreground"><Trash2 className="h-4 w-4" /></button>
