@@ -271,10 +271,17 @@ function GroupPage() {
       setBody("");
       setImageFile(null);
       setAudioFile(null);
+      toast.success("Message sent");
       qc.invalidateQueries({ queryKey: ["posts", groupId] });
     },
     onError: (error) => toast.error(error.message || "Couldn't post"),
   });
+
+  const canSendMessage = Boolean(body.trim() || imageFile || audioFile);
+  const sendMessage = () => {
+    if (!canSendMessage || post.isPending || isRecording) return;
+    post.mutate();
+  };
 
   if (isGroupLoading) return <div className="p-10 text-center text-muted-foreground">Loading…</div>;
   if (groupError) return <div className="p-10 text-center text-destructive">Couldn't load this group: {groupError.message}</div>;
@@ -327,10 +334,11 @@ function GroupPage() {
 
       {joined && (
         <form
+          aria-busy={post.isPending}
           className="shrink-0 border-t bg-background/95 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur sm:p-3"
           onSubmit={(event) => {
             event.preventDefault();
-            if (body.trim() || imageFile || audioFile) post.mutate();
+            sendMessage();
           }}
         >
           {(imageFile || audioFile) && (
@@ -353,7 +361,7 @@ function GroupPage() {
             </div>
           )}
           <div className="mx-auto flex max-w-4xl items-end gap-1.5 sm:gap-2">
-            <label className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Attach an image" title="Attach an image">
+            <label className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Attach an image" title="Attach an image">
               <ImagePlus className="h-5 w-5" />
               <input
                 type="file"
@@ -365,7 +373,7 @@ function GroupPage() {
                 }}
               />
             </label>
-            <label className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Attach audio" title="Attach audio">
+            <label className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-muted" aria-label="Attach audio" title="Attach audio">
               <Paperclip className="h-5 w-5" />
               <input
                 type="file"
@@ -381,7 +389,7 @@ function GroupPage() {
               type="button"
               size="icon"
               variant={isRecording ? "destructive" : "ghost"}
-              className="h-10 w-10 shrink-0 rounded-full"
+              className="h-11 w-11 shrink-0 rounded-full"
               onClick={isRecording ? stopRecording : startRecording}
               disabled={post.isPending}
               aria-label={isRecording ? `Stop recording at ${recordingSeconds} seconds` : "Record a voice message"}
@@ -394,22 +402,23 @@ function GroupPage() {
               value={body}
               onChange={(event) => setBody(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
+                if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
                   event.preventDefault();
-                  if ((body.trim() || imageFile || audioFile) && !isRecording && !post.isPending) post.mutate();
+                  sendMessage();
                 }
               }}
               maxLength={4000}
               rows={1}
               placeholder="Message"
               aria-label="Message"
-              className="min-h-10 max-h-28 min-w-0 flex-1 resize-y rounded-2xl bg-muted px-4 py-2.5"
+              className="min-h-11 max-h-28 min-w-0 flex-1 resize-y rounded-2xl bg-muted px-4 py-2.5"
             />
             <Button
-              type="submit"
+              type="button"
               size="icon"
-              className="h-10 w-10 shrink-0 rounded-full"
-              disabled={post.isPending || isRecording || (!body.trim() && !imageFile && !audioFile)}
+              className="h-11 w-11 shrink-0 rounded-full touch-manipulation"
+              onClick={sendMessage}
+              disabled={post.isPending || isRecording || !canSendMessage}
               aria-label="Send message"
               title="Send message"
             >
