@@ -35,12 +35,20 @@ function PostPage() {
   const { data: imageUrl } = useQuery({
     queryKey: ["post-image", id],
     enabled: !!post?.image_path,
-    queryFn: async () => (await supabase.storage.from("group-attachments").createSignedUrl(post!.image_path!, 3600)).data?.signedUrl ?? null,
+    queryFn: async () => {
+      const { data, error } = await supabase.storage.from("group-attachments").createSignedUrl(post!.image_path!, 3600);
+      if (error) throw error;
+      return data.signedUrl;
+    },
   });
-  const { data: audioUrl } = useQuery({
+  const { data: audioUrl, error: audioError } = useQuery({
     queryKey: ["post-audio", id],
     enabled: !!post?.audio_path,
-    queryFn: async () => (await supabase.storage.from("group-attachments").createSignedUrl(post!.audio_path!, 3600)).data?.signedUrl ?? null,
+    queryFn: async () => {
+      const { data, error } = await supabase.storage.from("group-attachments").createSignedUrl(post!.audio_path!, 3600);
+      if (error) throw error;
+      return data.signedUrl;
+    },
   });
 
   const send = useMutation({
@@ -66,6 +74,7 @@ function PostPage() {
         <p className="mt-4 whitespace-pre-wrap leading-relaxed">{post.body}</p>
         {imageUrl && <img src={imageUrl} alt="" className="mt-4 w-full rounded-2xl" />}
         {audioUrl && <audio controls src={audioUrl} className="mt-4 w-full" />}
+        {audioError && <p className="mt-4 text-sm text-destructive">Couldn't load audio: {audioError.message}</p>}
       </div>
       <h2 className="px-5 pt-8 pb-3 text-lg font-bold">Replies ({post.comments.length})</h2>
       <div className="space-y-3 px-5">

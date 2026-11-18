@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useMe } from "@/hooks/use-me";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin/announcements")({
   head: () => ({ meta: [{ title: "Admin Announcements — CAC" }] }),
@@ -21,19 +22,37 @@ function AdminAnnouncementsPage() {
   const [editing, setEditing] = useState<string | null>(null);
 
   const { data: isAdmin } = useQuery({ queryKey: ["is-admin", user?.id], enabled: !!user, queryFn: async () => (await supabase.rpc("has_role", { _user_id: user!.id, _role: "admin" })).data === true });
-  const { data = [] } = useQuery({ queryKey: ["admin-announcements"], enabled: !!isAdmin, queryFn: async () => (await supabase.from("announcements").select("*").order("created_at", { ascending: false })).data ?? [] });
+  const { data = [], error: announcementsError } = useQuery({
+    queryKey: ["admin-announcements"],
+    enabled: !!isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("announcements").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
   const save = useMutation({
     mutationFn: async () => {
       if (!form.title || !form.body) throw new Error("Required fields missing");
       const payload = { title: form.title, body: form.body, category: form.category, is_published: form.is_published, is_pinned: form.is_pinned, image_url: form.image_url || null };
-      if (editing) await supabase.from("announcements").update(payload).eq("id", editing);
-      else await supabase.from("announcements").insert({ ...payload, created_by: user!.id });
+      const { error } = editing
+        ? await supabase.from("announcements").update(payload).eq("id", editing)
+        : await supabase.from("announcements").insert({ ...payload, created_by: user!.id });
+      if (error) throw error;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-announcements"] }); setForm({ title: "", body: "", category: "General", is_published: false, is_pinned: false, image_url: "" }); setEditing(null); },
   });
 
-  const del = useMutation({ mutationFn: async (id: string) => { if (!confirm("Delete?")) return; await supabase.from("announcements").delete().eq("id", id); }, onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-announcements"] }) });
+  const del = useMutation({
+    mutationFn: async (id: string) => {
+      if (!confirm("Delete?")) return;
+      const { error } = await supabase.from("announcements").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-announcements"] }),
+    onError: (error) => toast.error(error.message || "Couldn't delete announcement"),
+  });
 
   if (!isAdmin) return <div className="p-6 text-center text-muted-foreground">Admin access required.</div>;
 
@@ -54,6 +73,7 @@ function AdminAnnouncementsPage() {
           <Button onClick={() => save.mutate()} disabled={save.isPending}>{editing ? "Update" : "Create"}</Button>
           {save.isError && <p className="text-sm text-destructive">{(save.error as Error).message}</p>}
         </div>
+        {announcementsError && <p className="text-sm text-destructive">Couldn't load announcements: {announcementsError.message}</p>}
         <div className="space-y-2">
           {data.map((a: A) => (
             <div key={a.id} className="flex items-center gap-2 rounded-xl bg-card p-3">

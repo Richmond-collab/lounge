@@ -20,7 +20,11 @@ function AnnouncementsPage() {
   const [cat, setCat] = useState("All");
   const { data = [], isLoading, error } = useQuery({
     queryKey: ["announcements"],
-    queryFn: async () => (await supabase.from("announcements").select("*").eq("is_published", true).order("is_pinned", { ascending: false }).order("published_at", { ascending: false })).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("announcements").select("*").eq("is_published", true).order("is_pinned", { ascending: false }).order("published_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
   });
   const filtered = data.filter((a: Announcement) => (cat === "All" || a.category === cat) && `${a.title} ${a.body}`.toLowerCase().includes(q.toLowerCase()));
 

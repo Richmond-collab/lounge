@@ -25,8 +25,9 @@ const tabs = [
 
 function AppShell() {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const isWideRoute = path.startsWith("/groups") || path.startsWith("/hymns");
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-background pb-24">
+    <div className={cn("mx-auto min-h-screen bg-background pb-24", isWideRoute ? "max-w-5xl" : "max-w-md")}>
       <Outlet />
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex max-w-md gap-1 overflow-x-auto px-2 py-2">

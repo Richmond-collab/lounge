@@ -7,9 +7,9 @@ import { useMe } from "@/hooks/use-me";
 export const Route = createFileRoute("/_authenticated/groups/")({
   head: () => ({
     meta: [
-      { title: "Community Groups â€” CAC" },
+      { title: "Community Groups — CAC" },
       { name: "description", content: "Join youth, women's, men's and ministry groups to connect and discuss." },
-      { property: "og:title", content: "Community Groups â€” CAC" },
+      { property: "og:title", content: "Community Groups — CAC" },
       { property: "og:description", content: "Connect with fellow members in groups." },
     ],
   }),
@@ -25,7 +25,7 @@ function GroupsPage() {
 
   return (
     <div className="pb-24">
-      <div className="space-y-3 px-5">
+      <div className="grid grid-cols-1 gap-3 px-5 sm:grid-cols-2 lg:grid-cols-3">
         {groups.length === 0 && (
           <div className="text-center py-12">
             <Users className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
