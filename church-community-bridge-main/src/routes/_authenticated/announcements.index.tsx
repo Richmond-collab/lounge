@@ -1,10 +1,12 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Search, Pin } from "lucide-react";
+import { Megaphone, Search, Pin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useMe } from "@/hooks/use-me";
 
 export const Route = createFileRoute("/_authenticated/announcements/")({
   head: () => ({ meta: [{ title: "Announcements — CAC" }] }),
@@ -16,8 +18,17 @@ interface Announcement { id: string; title: string; body: string; category: stri
 const CATS = ["All", "General", "Worship", "Events", "Youth", "Prayer", "Important"];
 
 function AnnouncementsPage() {
+  const user = useMe();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("All");
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin", user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" });
+      if (error) throw error;
+      return data === true;
+    },
+  });
   const { data = [], isLoading, error } = useQuery({
     queryKey: ["announcements"],
     queryFn: async () => {
@@ -30,7 +41,20 @@ function AnnouncementsPage() {
 
   return (
     <div className="pb-24">
-      <PageHeader title="Announcements" subtitle="Church updates" />
+      <PageHeader
+        title="Announcements"
+        subtitle="Church updates"
+        action={
+          isAdmin ? (
+            <Button asChild size="sm" className="shrink-0">
+              <Link to="/admin/announcements" aria-label="Write announcement" title="Write announcement">
+                <Megaphone className="h-4 w-4" />
+                <span className="hidden sm:inline">Write announcement</span>
+              </Link>
+            </Button>
+          ) : undefined
+        }
+      />
       <div className="mx-5 mb-3 flex flex-wrap gap-2">
         {CATS.map((c) => <button key={c} onClick={() => setCat(c)} className={`rounded-full px-3 py-1 text-sm ${cat === c ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{c}</button>)}
       </div>

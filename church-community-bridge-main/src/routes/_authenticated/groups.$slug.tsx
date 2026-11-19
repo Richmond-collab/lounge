@@ -96,7 +96,12 @@ function GroupPage() {
   const { data: group, isLoading: isGroupLoading, error: groupError } = useQuery({
     queryKey: ["group", slug],
     queryFn: async () => {
-      const { data, error } = await supabase.from("groups").select("*, group_members(user_id)").eq("slug", slug).maybeSingle();
+      const { data, error } = await supabase
+        .from("groups")
+        .select("*, group_members(user_id)")
+        .eq("slug", slug)
+        .eq("is_published", true)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },

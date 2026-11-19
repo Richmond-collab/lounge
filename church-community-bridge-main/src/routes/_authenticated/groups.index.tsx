@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Users } from "lucide-react";
+import { ChevronRight, RefreshCw, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/hooks/use-me";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/groups/")({
   head: () => ({
@@ -18,15 +19,46 @@ export const Route = createFileRoute("/_authenticated/groups/")({
 
 function GroupsPage() {
   const me = useMe();
-  const { data: groups = [] } = useQuery({
+  const { data: groups = [], isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ["groups"],
-    queryFn: async () => (await supabase.from("groups").select("*, group_members(user_id)").order("name")).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("groups")
+        .select("*, group_members(user_id)")
+        .eq("is_published", true)
+        .order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
+    refetchOnMount: "always",
   });
 
   return (
     <div className="pb-24">
+      <header className="flex items-center justify-between gap-3 px-5 py-5">
+        <div>
+          <h1 className="text-2xl font-bold">Community groups</h1>
+          {!isLoading && <p className="mt-1 text-sm text-muted-foreground">{groups.length} groups</p>}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void refetch()}
+          disabled={isFetching}
+          aria-label="Refresh group list"
+        >
+          <RefreshCw className={isFetching ? "animate-spin" : ""} />
+          Refresh
+        </Button>
+      </header>
+      {error && (
+        <p role="alert" className="mx-5 mb-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+          Couldn't refresh groups: {error.message}. If a group was just added, confirm this app uses the same Supabase project.
+        </p>
+      )}
+      {isLoading && <p className="px-5 py-8 text-center text-sm text-muted-foreground">Loading groups…</p>}
       <div className="grid grid-cols-1 gap-3 px-5 sm:grid-cols-2 lg:grid-cols-3">
-        {groups.length === 0 && (
+        {!isLoading && !error && groups.length === 0 && (
           <div className="text-center py-12">
             <Users className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
             <p className="text-muted-foreground text-sm">No groups available yet.</p>

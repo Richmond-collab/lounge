@@ -18,7 +18,7 @@ interface A { id: string; title: string; body: string; category: string; is_publ
 function AdminAnnouncementsPage() {
   const user = useMe();
   const qc = useQueryClient();
-  const [form, setForm] = useState({ title: "", body: "", category: "General", is_published: false, is_pinned: false, image_url: "" });
+  const [form, setForm] = useState({ title: "", body: "", category: "General", is_published: true, is_pinned: false, image_url: "" });
   const [editing, setEditing] = useState<string | null>(null);
 
   const { data: isAdmin } = useQuery({ queryKey: ["is-admin", user?.id], enabled: !!user, queryFn: async () => (await supabase.rpc("has_role", { _user_id: user!.id, _role: "admin" })).data === true });
@@ -34,14 +34,32 @@ function AdminAnnouncementsPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      if (!form.title || !form.body) throw new Error("Required fields missing");
-      const payload = { title: form.title, body: form.body, category: form.category, is_published: form.is_published, is_pinned: form.is_pinned, image_url: form.image_url || null };
+      if (!form.title.trim() || !form.body.trim()) throw new Error("Title and announcement text are required");
+      const published = form.is_published;
+      const payload = {
+        title: form.title.trim(),
+        body: form.body.trim(),
+        category: form.category,
+        is_published: published,
+        is_pinned: form.is_pinned,
+        image_url: form.image_url.trim() || null,
+        published_at: published ? new Date().toISOString() : null,
+      };
       const { error } = editing
         ? await supabase.from("announcements").update(payload).eq("id", editing)
         : await supabase.from("announcements").insert({ ...payload, created_by: user!.id });
       if (error) throw error;
+      return published;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-announcements"] }); setForm({ title: "", body: "", category: "General", is_published: false, is_pinned: false, image_url: "" }); setEditing(null); },
+    onSuccess: async (published) => {
+      toast.success(published ? "Announcement posted for members" : "Draft saved");
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["admin-announcements"] }),
+        qc.invalidateQueries({ queryKey: ["announcements"] }),
+      ]);
+      setForm({ title: "", body: "", category: "General", is_published: true, is_pinned: false, image_url: "" });
+      setEditing(null);
+    },
   });
 
   const del = useMutation({
@@ -60,19 +78,27 @@ function AdminAnnouncementsPage() {
     <div className="pb-24">
       <PageHeader title="Admin: Announcements" subtitle="Manage church announcements" />
       <div className="mx-5 space-y-4">
-        <div className="rounded-2xl bg-card p-4 space-y-3">
-          <h3 className="font-semibold">{editing ? "Edit" : "New"} announcement</h3>
+        <form
+          className="space-y-3 rounded-2xl bg-card p-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            save.mutate();
+          }}
+        >
+          <h3 className="font-semibold">{editing ? "Update announcement" : "Write an announcement"}</h3>
           <Input placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
           <select className="h-10 w-full rounded-md border px-2" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
             {["General","Worship","Events","Youth","Prayer","Important"].map((c) => <option key={c}>{c}</option>)}
           </select>
           <Input placeholder="Image URL" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
           <textarea className="w-full rounded-md border p-2" rows={5} placeholder="Body" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} />
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_published} onChange={(e) => setForm({ ...form, is_published: e.target.checked })} /> Published</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_published} onChange={(e) => setForm({ ...form, is_published: e.target.checked })} /> Publish now for members to see</label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.is_pinned} onChange={(e) => setForm({ ...form, is_pinned: e.target.checked })} /> Pinned</label>
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>{editing ? "Update" : "Create"}</Button>
+          <Button type="submit" disabled={save.isPending || !form.title.trim() || !form.body.trim()}>
+            {editing ? "Update announcement" : form.is_published ? "Post announcement" : "Save draft"}
+          </Button>
           {save.isError && <p className="text-sm text-destructive">{(save.error as Error).message}</p>}
-        </div>
+        </form>
         {announcementsError && <p className="text-sm text-destructive">Couldn't load announcements: {announcementsError.message}</p>}
         <div className="space-y-2">
           {data.map((a: A) => (

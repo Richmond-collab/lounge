@@ -120,6 +120,7 @@ create table public.groups (
   slug text not null unique,
   name text not null,
   description text,
+  is_published boolean not null default true,
   created_at timestamptz not null default now()
 );
 grant select, insert, update, delete on public.groups to authenticated;
